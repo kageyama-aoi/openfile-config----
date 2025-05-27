@@ -1,0 +1,30 @@
+{
+  "office": {
+    "files": [
+      {
+        "path": "C:/Users/kageyama/Downloads/Tfameの進捗 (1).xlsx",
+        "title": "Tfameの進捗 (1).xlsx",
+        "position": {
+          "x": 1920,
+          "y": 0,
+          "width": 1280,
+          "height": 720
+        }
+      }
+    ]
+  },
+  "remote": {
+    "files": [
+      {
+        "path": "C:/Users/kageyama/Downloads/TCNS_UAT_課題管理_2社共有 (3).xlsx",
+        "title": "TCNS_UAT_課題管理_2社共有 (3).xlsx",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "width": 1024,
+          "height": 768
+        }
+      }
+    ]
+  }
+}
