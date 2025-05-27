@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>設定入力画面</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f4; }
+        .container { max-width: 700px; margin: 20px auto; padding: 20px; background-color: #fff; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; }
+        h2 { color: #555; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 30px; }
+        .file-entry { margin-bottom: 20px; padding: 15px; border: 1px solid #eee; border-radius: 5px; background-color: #f9f9f9; }
+        .form-group {
+            display: flex;
+            flex-wrap: wrap; /* Allow wrapping for smaller screens if needed */
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .form-group label {
+            flex-basis: 150px; /* Fixed width for labels */
+            flex-shrink: 0; /* Prevent label from shrinking */
+            padding-right: 15px; /* Space between label and input */
+            text-align: left; /* Align label text to the left */
+            font-weight: bold;
+            color: #333;
+        }
+        .form-group .input-control {
+            flex-grow: 1; /* Input takes remaining space */
+            display: flex; 
+            flex-direction: column; 
+        }
+        .form-group .input-control.with-browse {
+            flex-direction: column; /* Stack path input and browse row vertically */
+            align-items: stretch; /* Stretch children to full width */
+        }
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group input[type="file"] {
+            width: 100%; /* Make input take full width of its container */
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1em;
+            margin-bottom: 5px; /* Space between stacked inputs */
+        }
+        .form-group .input-control.with-browse input[type="text"] {
+            /* flex-grow: 1; */ /* No longer needed as it's on its own line */
+            /* margin-right: 10px; */ /* No longer needed */
+            margin-bottom: 5px; /* Space below the path input */
+        }
+        .browse-row {
+            display: flex;
+            align-items: center; /* Vertically align button and text */
+            margin-top: 5px; /* Space above the browse row */
+        }
+        .browse-button {
+            padding: 8px 12px;
+            /* margin-left: 5px; */ /* Reset as it's the first item in browse-row */
+            margin-right: 10px; /* Space between button and display text */
+        }
+        .form-group input[type="file"] {
+            padding: 3px; /* Adjust padding for file input */
+        }
+        .path-display-text {
+            font-size: 0.9em;
+            color: #777;
+            margin-top: 0px; /* Adjusted margin */
+            word-break: break-all;
+        }
+        button[type="submit"] {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        /* Collapsible section styles */
+        .collapsible-header {
+            /* Inherits h2 styles like color, margin-top, border-bottom */
+            padding-top: 10px; /* Adjust vertical padding if needed, h2 already has padding-bottom */
+            padding-bottom: 10px; /* Ensure consistent padding */
+            cursor: pointer;
+            user-select: none; /* Prevent text selection on click */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .collapsible-header .toggle-icon::before {
+            content: '[+]';
+            font-weight: bold;
+            margin-left: 10px; /* Space between title and icon */
+        }
+
+        .collapsible-section.active .collapsible-header .toggle-icon::before {
+            content: '[-]';
+        }
+
+        .collapsible-content {
+            display: none; /* Hidden by default */
+            padding-left: 25px; /* Indent content slightly */
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+        .collapsible-section.active .collapsible-content {
+            display: block; /* Show when active */
+        }
+
+        /* Styles for form groups in a row */
+        .form-row {
+            display: flex;
+            gap: 20px; /* Space between the two form-groups in the row */
+            align-items: center; /* Align form-groups vertically */
+            margin-bottom: 12px; /* Maintain spacing similar to individual form-groups */
+        }
+
+        .form-row .form-group {
+            flex: 1; /* Each form-group in the row takes up equal width */
+            margin-bottom: 0; /* Remove default margin as the row handles it */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>設定入力</h1>
+
+        <form id="configForm">
+            <!-- Office File Example (from config.json) -->
+            <section id="office-section-wrapper" class="collapsible-section">
+                <h2 class="collapsible-header" id="office-section-header" aria-controls="office-section-content" aria-expanded="false">
+                    オフィス設定
+                    <span class="toggle-icon"></span>
+                </h2>
+                <div class="collapsible-content" id="office-section-content" role="region" aria-labelledby="office-section-header">
+                    <div class="file-entry" id="office-file-1">
+                        <div class="form-group">
+                            <label for="officeFile1PathValue">ファイルパス:</label>
+                            <div class="input-control with-browse">
+                                <input type="text" id="officeFile1PathValue" name="officeFile1PathValue" value="C:/path/to/office_file.pdf" placeholder="ファイルパス">
+                                <div class="browse-row">
+                                    <button type="button" class="browse-button" data-path-input-id="officeFile1PathValue" data-title-input-id="officeFile1Title" data-display-span-id="officeFile1PathDisplay">参照...</button>
+                                    <span class="path-display-text" id="officeFile1PathDisplay">現在のパスが表示されます。「参照...」ボタンで選択してください。</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="officeFile1Title">タイトル:</label>
+                            <div class="input-control">
+                                <input type="text" id="officeFile1Title" name="officeFile1Title" value="office_file.pdf" placeholder="ファイルタイトル">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="officeFile1PosX">位置 X:</label>
+                                <div class="input-control">
+                                    <input type="number" id="officeFile1PosX" name="officeFile1PosX" value="1920" placeholder="X座標">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="officeFile1PosY">位置 Y:</label>
+                                <div class="input-control">
+                                    <input type="number" id="officeFile1PosY" name="officeFile1PosY" value="0" placeholder="Y座標">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="officeFile1Width">幅:</label>
+                                <div class="input-control">
+                                    <input type="number" id="officeFile1Width" name="officeFile1Width" value="1280" placeholder="幅">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="officeFile1Height">高さ:</label>
+                                <div class="input-control">
+                                    <input type="number" id="officeFile1Height" name="officeFile1Height" value="720" placeholder="高さ">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Remote File Example (from config.json) -->
+            <section id="remote-section-wrapper" class="collapsible-section">
+                <h2 class="collapsible-header" id="remote-section-header" aria-controls="remote-section-content" aria-expanded="false">
+                    リモート設定
+                    <span class="toggle-icon"></span>
+                </h2>
+                <div class="collapsible-content" id="remote-section-content" role="region" aria-labelledby="remote-section-header">
+                    <div class="file-entry" id="remote-file-1">
+                         <div class="form-group">
+                            <label for="remoteFile1PathValue">ファイルパス:</label>
+                            <div class="input-control with-browse">
+                                <input type="text" id="remoteFile1PathValue" name="remoteFile1PathValue" value="C:/path/to/remote_file.pdf" placeholder="ファイルパス">
+                                <div class="browse-row">
+                                    <button type="button" class="browse-button" data-path-input-id="remoteFile1PathValue" data-title-input-id="remoteFile1Title" data-display-span-id="remoteFile1PathDisplay">参照...</button>
+                                    <span class="path-display-text" id="remoteFile1PathDisplay">現在のパスが表示されます。「参照...」ボタンで選択してください。</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="remoteFile1Title">タイトル:</label>
+                            <div class="input-control">
+                                <input type="text" id="remoteFile1Title" name="remoteFile1Title" value="remote_file.pdf" placeholder="ファイルタイトル">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="remoteFile1PosX">位置 X:</label>
+                                <div class="input-control">
+                                    <input type="number" id="remoteFile1PosX" name="remoteFile1PosX" value="0" placeholder="X座標">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="remoteFile1PosY">位置 Y:</label>
+                                <div class="input-control">
+                                    <input type="number" id="remoteFile1PosY" name="remoteFile1PosY" value="0" placeholder="Y座標">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="remoteFile1Width">幅:</label>
+                                <div class="input-control">
+                                    <input type="number" id="remoteFile1Width" name="remoteFile1Width" value="1024" placeholder="幅">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="remoteFile1Height">高さ:</label>
+                                <div class="input-control">
+                                    <input type="number" id="remoteFile1Height" name="remoteFile1Height" value="768" placeholder="高さ">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <button type="submit">設定を保存</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to initialize path display messages
+            function initPathDisplay(pathValueInputId, displaySpanId) {
+                const pathValueInput = document.getElementById(pathValueInputId);
+                const displaySpan = document.getElementById(displaySpanId);
+
+                if (pathValueInput && displaySpan) {
+                    if (pathValueInput.value) {
+                        displaySpan.textContent = '現在のパス: ' + pathValueInput.value +
+                                                '. 「参照...」ボタンで変更するか、手動で編集してください。';
+                    } else {
+                        displaySpan.textContent = 'パスを入力するか、「参照...」ボタンで選択してください。';
+                    }
+                }
+            }
+
+            // Assign unique IDs to path-display-text spans if they don't have them
+            // This is a bit of a workaround to easily target them.
+            // A better approach might be to restructure HTML to make targeting easier.
+
+            // Function to load existing config data into the form
+            async function loadConfigData() {
+                try {
+                    const response = await fetch('/config');
+                    if (!response.ok) {
+                        alert('設定の読み込みに失敗しました: ' + response.statusText);
+                        return;
+                    }
+                    const config = await response.json();
+
+                    // Populate Office settings (assuming one file as per current HTML)
+                    if (config.office && config.office.files && config.office.files.length > 0) {
+                        const officeFile = config.office.files[0];
+                        document.getElementById('officeFile1PathValue').value = officeFile.path || '';
+                        document.getElementById('officeFile1Title').value = officeFile.title || '';
+                        if (officeFile.position) {
+                            document.getElementById('officeFile1PosX').value = officeFile.position.x || 0;
+                            document.getElementById('officeFile1PosY').value = officeFile.position.y || 0;
+                            document.getElementById('officeFile1Width').value = officeFile.position.width || 0;
+                            document.getElementById('officeFile1Height').value = officeFile.position.height || 0;
+                        }
+                    }
+
+                    // Populate Remote settings (assuming one file as per current HTML)
+                    if (config.remote && config.remote.files && config.remote.files.length > 0) {
+                        const remoteFile = config.remote.files[0];
+                        document.getElementById('remoteFile1PathValue').value = remoteFile.path || '';
+                        document.getElementById('remoteFile1Title').value = remoteFile.title || '';
+                        if (remoteFile.position) {
+                            document.getElementById('remoteFile1PosX').value = remoteFile.position.x || 0;
+                            document.getElementById('remoteFile1PosY').value = remoteFile.position.y || 0;
+                            document.getElementById('remoteFile1Width').value = remoteFile.position.width || 0;
+                            document.getElementById('remoteFile1Height').value = remoteFile.position.height || 0;
+                        }
+                    }
+                } catch (error) {
+                    console.error('設定の読み込み中にエラーが発生しました:', error);
+                    alert('設定の読み込み中にエラーが発生しました。');
+                } finally {
+                    // Initialize path displays after attempting to load data
+                    initPathDisplay('officeFile1PathValue', 'officeFile1PathDisplay');
+                    initPathDisplay('remoteFile1PathValue', 'remoteFile1PathDisplay');
+                }
+            }
+
+            // Load existing config data when the page loads
+            loadConfigData();
+
+
+            // Initialize collapsible sections functionality
+            const collapsibleHeaders = document.querySelectorAll('.collapsible-header');
+
+            collapsibleHeaders.forEach(header => {
+                header.addEventListener('click', function() {
+                    const section = this.closest('.collapsible-section');
+                    if (section) {
+                        const isActive = section.classList.toggle('active');
+                        this.setAttribute('aria-expanded', isActive.toString());
+                    }
+                });
+            });
+
+            // Add event listeners for "参照..." buttons
+            document.querySelectorAll('.browse-button').forEach(button => {
+                button.addEventListener('click', async function() {
+                    const pathInputId = this.dataset.pathInputId;
+                    const titleInputId = this.dataset.titleInputId;
+                    const displaySpanId = this.dataset.displaySpanId;
+                    const displaySpan = document.getElementById(displaySpanId);
+
+                    try {
+                        if (displaySpan) displaySpan.textContent = "ファイル選択ダイアログを開いています...";
+                        const response = await fetch('/get-file-path');
+                        if (!response.ok) {
+                            const errorResult = await response.json().catch(() => ({error: response.statusText})); // Graceful error handling
+                            alert(`サーバーエラー: ${errorResult.error || response.statusText}`);
+                            if (displaySpan) displaySpan.textContent = "パス取得に失敗しました。";
+                            return;
+                        }
+                        const result = await response.json();
+                        if (result.filePath) {
+                            const pathInput = document.getElementById(pathInputId);
+                            const titleInput = document.getElementById(titleInputId);
+                            
+                            pathInput.value = result.filePath;
+                            const filename = result.filePath.includes('/') ? result.filePath.substring(result.filePath.lastIndexOf('/') + 1) : result.filePath.substring(result.filePath.lastIndexOf('\\') + 1);
+                            if (titleInput) {
+                                titleInput.value = filename;
+                            }
+                            if (displaySpan) displaySpan.textContent = `パスが設定されました: ${result.filePath}`;
+                        } else {
+                            if (displaySpan) displaySpan.textContent = "ファイルは選択されませんでした。";
+                        }
+                    } catch (error) {
+                        console.error('ファイルパス取得リクエストエラー:', error);
+                        alert('ファイルパスの取得中にクライアント側でエラーが発生しました。');
+                        if (displaySpan) displaySpan.textContent = "パス取得中にエラーが発生しました。";
+                    }
+                });
+            });
+
+            // Handle form submission
+            const configForm = document.getElementById('configForm');
+            configForm.addEventListener('submit', async function(event) {
+                event.preventDefault(); // Prevent default form submission
+
+                const configData = {
+                    office: {
+                        files: [
+                            {
+                                path: document.getElementById('officeFile1PathValue').value,
+                                title: document.getElementById('officeFile1Title').value,
+                                position: {
+                                    x: parseInt(document.getElementById('officeFile1PosX').value) || 0,
+                                    y: parseInt(document.getElementById('officeFile1PosY').value) || 0,
+                                    width: parseInt(document.getElementById('officeFile1Width').value) || 0,
+                                    height: parseInt(document.getElementById('officeFile1Height').value) || 0
+                                }
+                            }
+                        ]
+                    },
+                    remote: {
+                        files: [
+                            {
+                                path: document.getElementById('remoteFile1PathValue').value,
+                                title: document.getElementById('remoteFile1Title').value,
+                                position: {
+                                    x: parseInt(document.getElementById('remoteFile1PosX').value) || 0,
+                                    y: parseInt(document.getElementById('remoteFile1PosY').value) || 0,
+                                    width: parseInt(document.getElementById('remoteFile1Width').value) || 0,
+                                    height: parseInt(document.getElementById('remoteFile1Height').value) || 0
+                                }
+                            }
+                        ]
+                    }
+                };
+
+                try {
+                    const response = await fetch('/config', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(configData),
+                    });
+                    const result = await response.json(); // server.js sends back JSON
+                    alert(result.message || (response.ok ? '設定が保存されました。' : 'エラーが発生しました。'));
+                } catch (error) {
+                    console.error('設定の保存中にエラーが発生しました:', error);
+                    alert('設定の保存中にクライアント側でエラーが発生しました。');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
