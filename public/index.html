@@ -142,108 +142,17 @@
                     <span class="toggle-icon"></span>
                 </h2>
                 <div class="collapsible-content" id="office-section-content" role="region" aria-labelledby="office-section-header">
-                    <div class="file-entry" id="office-file-1">
-                        <div class="form-group">
-                            <label for="officeFile1PathValue">ファイルパス:</label>
-                            <div class="input-control with-browse">
-                                <input type="text" id="officeFile1PathValue" name="officeFile1PathValue" value="C:/path/to/office_file.pdf" placeholder="ファイルパス">
-                                <div class="browse-row">
-                                    <button type="button" class="browse-button" data-path-input-id="officeFile1PathValue" data-title-input-id="officeFile1Title" data-display-span-id="officeFile1PathDisplay">参照...</button>
-                                    <span class="path-display-text" id="officeFile1PathDisplay">現在のパスが表示されます。「参照...」ボタンで選択してください。</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="officeFile1Title">タイトル:</label>
-                            <div class="input-control">
-                                <input type="text" id="officeFile1Title" name="officeFile1Title" value="office_file.pdf" placeholder="ファイルタイトル">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="officeFile1PosX">位置 X:</label>
-                                <div class="input-control">
-                                    <input type="number" id="officeFile1PosX" name="officeFile1PosX" value="1920" placeholder="X座標">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="officeFile1PosY">位置 Y:</label>
-                                <div class="input-control">
-                                    <input type="number" id="officeFile1PosY" name="officeFile1PosY" value="0" placeholder="Y座標">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="officeFile1Width">幅:</label>
-                                <div class="input-control">
-                                    <input type="number" id="officeFile1Width" name="officeFile1Width" value="1280" placeholder="幅">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="officeFile1Height">高さ:</label>
-                                <div class="input-control">
-                                    <input type="number" id="officeFile1Height" name="officeFile1Height" value="720" placeholder="高さ">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Content will be dynamically inserted here by JavaScript -->
                 </div>
             </section>
             
-            <!-- Remote File Example (from config.json) -->
             <section id="remote-section-wrapper" class="collapsible-section">
                 <h2 class="collapsible-header" id="remote-section-header" aria-controls="remote-section-content" aria-expanded="false">
                     リモート設定
                     <span class="toggle-icon"></span>
                 </h2>
                 <div class="collapsible-content" id="remote-section-content" role="region" aria-labelledby="remote-section-header">
-                    <div class="file-entry" id="remote-file-1">
-                         <div class="form-group">
-                            <label for="remoteFile1PathValue">ファイルパス:</label>
-                            <div class="input-control with-browse">
-                                <input type="text" id="remoteFile1PathValue" name="remoteFile1PathValue" value="C:/path/to/remote_file.pdf" placeholder="ファイルパス">
-                                <div class="browse-row">
-                                    <button type="button" class="browse-button" data-path-input-id="remoteFile1PathValue" data-title-input-id="remoteFile1Title" data-display-span-id="remoteFile1PathDisplay">参照...</button>
-                                    <span class="path-display-text" id="remoteFile1PathDisplay">現在のパスが表示されます。「参照...」ボタンで選択してください。</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="remoteFile1Title">タイトル:</label>
-                            <div class="input-control">
-                                <input type="text" id="remoteFile1Title" name="remoteFile1Title" value="remote_file.pdf" placeholder="ファイルタイトル">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="remoteFile1PosX">位置 X:</label>
-                                <div class="input-control">
-                                    <input type="number" id="remoteFile1PosX" name="remoteFile1PosX" value="0" placeholder="X座標">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="remoteFile1PosY">位置 Y:</label>
-                                <div class="input-control">
-                                    <input type="number" id="remoteFile1PosY" name="remoteFile1PosY" value="0" placeholder="Y座標">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="remoteFile1Width">幅:</label>
-                                <div class="input-control">
-                                    <input type="number" id="remoteFile1Width" name="remoteFile1Width" value="1024" placeholder="幅">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="remoteFile1Height">高さ:</label>
-                                <div class="input-control">
-                                    <input type="number" id="remoteFile1Height" name="remoteFile1Height" value="768" placeholder="高さ">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Content will be dynamically inserted here by JavaScript -->
                 </div>
             </section>
 
@@ -268,51 +177,113 @@
                 }
             }
 
-            // Assign unique IDs to path-display-text spans if they don't have them
-            // This is a bit of a workaround to easily target them.
-            // A better approach might be to restructure HTML to make targeting easier.
+            // Helper function to create file entry HTML
+            function createFileEntryHTML(sectionPrefix, index, file = {}) {
+                const fileIdPrefix = `${sectionPrefix}File${index}`;
+                const path = file.path || '';
+                const title = file.title || '';
+                const posX = file.position ? file.position.x || 0 : 0;
+                const posY = file.position ? file.position.y || 0 : 0;
+                const width = file.position ? file.position.width || 0 : 0;
+                const height = file.position ? file.position.height || 0 : 0;
+
+                // Initial display text logic will be handled by initPathDisplay after element creation
+                const initialPathDisplayText = `パス情報をロード中...`;
+
+                return `
+                    <div class="file-entry" id="${sectionPrefix}-file-${index}">
+                        <div class="form-group">
+                            <label for="${fileIdPrefix}PathValue">ファイルパス:</label>
+                            <div class="input-control with-browse">
+                                <input type="text" id="${fileIdPrefix}PathValue" name="${fileIdPrefix}PathValue" value="${path}" placeholder="ファイルパス">
+                                <div class="browse-row">
+                                    <button type="button" class="browse-button" 
+                                            data-path-input-id="${fileIdPrefix}PathValue" 
+                                            data-title-input-id="${fileIdPrefix}Title" 
+                                            data-display-span-id="${fileIdPrefix}PathDisplay">参照...</button>
+                                    <span class="path-display-text" id="${fileIdPrefix}PathDisplay">${initialPathDisplayText}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="${fileIdPrefix}Title">タイトル:</label>
+                            <div class="input-control">
+                                <input type="text" id="${fileIdPrefix}Title" name="${fileIdPrefix}Title" value="${title}" placeholder="ファイルタイトル">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="${fileIdPrefix}PosX">位置 X:</label>
+                                <div class="input-control">
+                                    <input type="number" id="${fileIdPrefix}PosX" name="${fileIdPrefix}PosX" value="${posX}" placeholder="X座標">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="${fileIdPrefix}PosY">位置 Y:</label>
+                                <div class="input-control">
+                                    <input type="number" id="${fileIdPrefix}PosY" name="${fileIdPrefix}PosY" value="${posY}" placeholder="Y座標">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="${fileIdPrefix}Width">幅:</label>
+                                <div class="input-control">
+                                    <input type="number" id="${fileIdPrefix}Width" name="${fileIdPrefix}Width" value="${width}" placeholder="幅">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="${fileIdPrefix}Height">高さ:</label>
+                                <div class="input-control">
+                                    <input type="number" id="${fileIdPrefix}Height" name="${fileIdPrefix}Height" value="${height}" placeholder="高さ">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
 
             // Function to load existing config data into the form
             async function loadConfigData() {
+                const officeContent = document.getElementById('office-section-content');
+                const remoteContent = document.getElementById('remote-section-content');
+
                 try {
                     const response = await fetch('/config');
                     if (!response.ok) {
                         alert('設定の読み込みに失敗しました: ' + response.statusText);
+                        // Render empty forms even on failure
+                        officeContent.innerHTML = createFileEntryHTML('office', 1);
+                        initPathDisplay('officeFile1PathValue', 'officeFile1PathDisplay');
+                        remoteContent.innerHTML = createFileEntryHTML('remote', 1);
+                        initPathDisplay('remoteFile1PathValue', 'remoteFile1PathDisplay');
                         return;
                     }
                     const config = await response.json();
 
-                    // Populate Office settings (assuming one file as per current HTML)
+                    // Populate Office settings
                     if (config.office && config.office.files && config.office.files.length > 0) {
-                        const officeFile = config.office.files[0];
-                        document.getElementById('officeFile1PathValue').value = officeFile.path || '';
-                        document.getElementById('officeFile1Title').value = officeFile.title || '';
-                        if (officeFile.position) {
-                            document.getElementById('officeFile1PosX').value = officeFile.position.x || 0;
-                            document.getElementById('officeFile1PosY').value = officeFile.position.y || 0;
-                            document.getElementById('officeFile1Width').value = officeFile.position.width || 0;
-                            document.getElementById('officeFile1Height').value = officeFile.position.height || 0;
-                        }
+                        officeContent.innerHTML = createFileEntryHTML('office', 1, config.office.files[0]);
+                    } else {
+                        officeContent.innerHTML = createFileEntryHTML('office', 1); // Default empty entry
                     }
+                    initPathDisplay('officeFile1PathValue', 'officeFile1PathDisplay');
 
-                    // Populate Remote settings (assuming one file as per current HTML)
+                    // Populate Remote settings
                     if (config.remote && config.remote.files && config.remote.files.length > 0) {
-                        const remoteFile = config.remote.files[0];
-                        document.getElementById('remoteFile1PathValue').value = remoteFile.path || '';
-                        document.getElementById('remoteFile1Title').value = remoteFile.title || '';
-                        if (remoteFile.position) {
-                            document.getElementById('remoteFile1PosX').value = remoteFile.position.x || 0;
-                            document.getElementById('remoteFile1PosY').value = remoteFile.position.y || 0;
-                            document.getElementById('remoteFile1Width').value = remoteFile.position.width || 0;
-                            document.getElementById('remoteFile1Height').value = remoteFile.position.height || 0;
-                        }
+                        remoteContent.innerHTML = createFileEntryHTML('remote', 1, config.remote.files[0]);
+                    } else {
+                        remoteContent.innerHTML = createFileEntryHTML('remote', 1); // Default empty entry
                     }
+                    initPathDisplay('remoteFile1PathValue', 'remoteFile1PathDisplay');
+
                 } catch (error) {
                     console.error('設定の読み込み中にエラーが発生しました:', error);
                     alert('設定の読み込み中にエラーが発生しました。');
-                } finally {
-                    // Initialize path displays after attempting to load data
+                    // Render empty forms on error
+                    officeContent.innerHTML = createFileEntryHTML('office', 1);
                     initPathDisplay('officeFile1PathValue', 'officeFile1PathDisplay');
+                    remoteContent.innerHTML = createFileEntryHTML('remote', 1);
                     initPathDisplay('remoteFile1PathValue', 'remoteFile1PathDisplay');
                 }
             }
@@ -334,43 +305,50 @@
                 });
             });
 
-            // Add event listeners for "参照..." buttons
-            document.querySelectorAll('.browse-button').forEach(button => {
-                button.addEventListener('click', async function() {
-                    const pathInputId = this.dataset.pathInputId;
-                    const titleInputId = this.dataset.titleInputId;
-                    const displaySpanId = this.dataset.displaySpanId;
+            // Event delegation for "参照..." buttons
+            document.getElementById('configForm').addEventListener('click', async function(event) {
+                if (event.target.classList.contains('browse-button')) {
+                    const button = event.target;
+                    const pathInputId = button.dataset.pathInputId;
+                    const titleInputId = button.dataset.titleInputId;
+                    const displaySpanId = button.dataset.displaySpanId;
+                    const pathInput = document.getElementById(pathInputId);
+                    const titleInput = document.getElementById(titleInputId);
                     const displaySpan = document.getElementById(displaySpanId);
 
+                    if (!pathInput || !displaySpan) {
+                        console.error('Browse button target elements not found:', pathInputId, displaySpanId);
+                        return;
+                    }
+
                     try {
-                        if (displaySpan) displaySpan.textContent = "ファイル選択ダイアログを開いています...";
-                        const response = await fetch('/get-file-path');
-                        if (!response.ok) {
-                            const errorResult = await response.json().catch(() => ({error: response.statusText})); // Graceful error handling
-                            alert(`サーバーエラー: ${errorResult.error || response.statusText}`);
-                            if (displaySpan) displaySpan.textContent = "パス取得に失敗しました。";
+                        displaySpan.textContent = "ファイル選択ダイアログを開いています...";
+                        const apiResponse = await fetch('/get-file-path');
+                        if (!apiResponse.ok) {
+                            const errorResult = await apiResponse.json().catch(() => ({error: apiResponse.statusText}));
+                            alert(`サーバーエラー: ${errorResult.error || apiResponse.statusText}`);
+                            displaySpan.textContent = "パス取得に失敗しました。";
                             return;
                         }
-                        const result = await response.json();
+                        const result = await apiResponse.json();
                         if (result.filePath) {
-                            const pathInput = document.getElementById(pathInputId);
-                            const titleInput = document.getElementById(titleInputId);
-                            
                             pathInput.value = result.filePath;
                             const filename = result.filePath.includes('/') ? result.filePath.substring(result.filePath.lastIndexOf('/') + 1) : result.filePath.substring(result.filePath.lastIndexOf('\\') + 1);
                             if (titleInput) {
                                 titleInput.value = filename;
                             }
-                            if (displaySpan) displaySpan.textContent = `パスが設定されました: ${result.filePath}`;
+                            displaySpan.textContent = `パスが設定されました: ${result.filePath}`;
+                            // Update display text based on new path
+                            initPathDisplay(pathInputId, displaySpanId);
                         } else {
-                            if (displaySpan) displaySpan.textContent = "ファイルは選択されませんでした。";
+                            displaySpan.textContent = "ファイルは選択されませんでした。";
                         }
                     } catch (error) {
                         console.error('ファイルパス取得リクエストエラー:', error);
                         alert('ファイルパスの取得中にクライアント側でエラーが発生しました。');
-                        if (displaySpan) displaySpan.textContent = "パス取得中にエラーが発生しました。";
+                        displaySpan.textContent = "パス取得中にエラーが発生しました。";
                     }
-                });
+                }
             });
 
             // Handle form submission
