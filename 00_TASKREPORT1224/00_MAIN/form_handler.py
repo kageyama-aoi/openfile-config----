@@ -1,5 +1,5 @@
 #設定値ファイル
-import Variable as var
+import config as var
 import selenium_utils
 
 class form_handler:
@@ -22,11 +22,17 @@ class form_handler:
         #  画面入力値設定
         #################
 
-        Two_dimensional_dict = {
-        var.TR_FIELDS[index]: dict(attribut_name = var.TR_HTML_ATTRIBUTES[index],value=values)
-        for index, values in enumerate(var.SCHOOL_SPECIFIC_DEFAULTS[self.schools_type])
-        }
-        
+        # 選択されたTRタイプに対応するデフォルト値の辞書を取得
+        defaults_for_type = var.SCHOOL_SPECIFIC_DEFAULTS[self.schools_type]
+        Two_dimensional_dict = {}
+
+        # TR_FIELDS をループして、各フィールドに対応するHTML属性名とデフォルト値を取得
+        for i, field_name in enumerate(var.TR_FIELDS):
+            html_attr = var.TR_HTML_ATTRIBUTES[i]
+            # フィールド名に対応するデフォルト値を取得。存在しない場合は空文字を設定。
+            default_value = defaults_for_type.get(field_name, "")
+            Two_dimensional_dict[field_name] = {'attribut_name': html_attr, 'value': default_value}
+
         keys_to_update = ['Comments', 'Title', 'Category']
         for key in keys_to_update:
             Two_dimensional_dict[key]['value'] = Two_dimensional_dict[key]['value'].replace("[KANKYOUMEI]", self.environment_name)
@@ -55,4 +61,3 @@ class form_handler:
                 continue
 
             selenium_utils.select(*common_dom_args) 
-

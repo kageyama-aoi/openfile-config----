@@ -7,14 +7,14 @@ from tkinter import messagebox
 import tkinter as tk
 
 #設定値ファイル
-import Variable
+import config
 import selenium_utils
 from form_handler import form_handler
 
 # 保存するファイル名を指定
 log_folder = '{0}.log'.format(datetime.date.today())
 # ログの初期設定を行う
-logger = Variable.setup_logger(log_folder)
+logger = config.setup_logger(log_folder)
 
 ##################################
 ###ユーザー入力:対応種別
@@ -22,14 +22,14 @@ logger = Variable.setup_logger(log_folder)
 ##################################
 
 # print(input_item.x)
-print(Variable.MENU_1_PROMPT)
+print(config.MENU_1_PROMPT)
 user_select_school = input()
 
 environment_name = ""
 if user_select_school == "up":
-    print(Variable.MENU_2_PROMPT)
+    print(config.MENU_2_PROMPT)
     upload_destination = input()
-    environment_name = Variable.ENVIRONMENT_LIST[upload_destination]
+    environment_name = config.ENVIRONMENT_LIST[upload_destination]
 
 ##################################
 #ドライバ設定
@@ -38,9 +38,9 @@ if user_select_school == "up":
 driver = webdriver.Chrome()
 driver.set_window_size(700,1000)
 driver.implicitly_wait(10) # seconds
-driver.get(Variable.URL)
+driver.get(config.URL)
 driver.implicitly_wait(3) # seconds
-selenium_utils.set(driver,"name",Variable.NEW_BUG_BUTTON_DOM_ATTRIBUTE).click()  
+selenium_utils.set(driver,"name",config.NEW_BUG_BUTTON_DOM_ATTRIBUTE).click()  
 
 
 # ##################################

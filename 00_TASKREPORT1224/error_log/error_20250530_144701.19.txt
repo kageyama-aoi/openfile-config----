@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "C:\Users\kageyama\Tools\openfile(configïœçXâ¬)\00_TASKREPORT1224\00_MAIN\taskreport.py", line 50, in <module>
+    i_InputIem.setItems()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\kageyama\Tools\openfile(configïœçXâ¬)\00_TASKREPORT1224\00_MAIN\form_handler.py", line 57, in setItems
+    selenium_utils.select(*common_dom_args)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\kageyama\Tools\openfile(configïœçXâ¬)\00_TASKREPORT1224\00_MAIN\selenium_utils.py", line 21, in select
+    Select(set(driver,attribute,element)).select_by_value(input_value)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\kageyama\AppData\Local\Programs\Python\Python313\Lib\site-packages\selenium\webdriver\support\select.py", line 84, in select_by_value
+    raise NoSuchElementException(f"Cannot locate option with value: {value}")
+selenium.common.exceptions.NoSuchElementException: Message: Cannot locate option with value: Schools; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+
