@@ -8,8 +8,8 @@ import tkinter as tk
 
 #設定値ファイル
 import Variable
-import FuncElement
-from InputItem_0710 import InputItem_0710
+import selenium_utils
+from form_handler import form_handler
 
 # 保存するファイル名を指定
 log_folder = '{0}.log'.format(datetime.date.today())
@@ -40,13 +40,13 @@ driver.set_window_size(700,1000)
 driver.implicitly_wait(10) # seconds
 driver.get(Variable.URL)
 driver.implicitly_wait(3) # seconds
-FuncElement.set(driver,"name",Variable.NEW_BUG_BUTTON_DOM_ATTRIBUTE).click()  
+selenium_utils.set(driver,"name",Variable.NEW_BUG_BUTTON_DOM_ATTRIBUTE).click()  
 
 
 # ##################################
 # ###メイン処理
 # ##################################
-i_InputIem = InputItem_0710(driver,user_select_school,environment_name)
+i_InputIem = form_handler(driver,user_select_school,environment_name)
 i_InputIem.setItems()
 
 #################

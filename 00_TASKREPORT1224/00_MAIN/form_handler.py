@@ -1,8 +1,8 @@
 #設定値ファイル
 import Variable as var
-import FuncElement
+import selenium_utils
 
-class InputItem_0710:
+class form_handler:
 
     # コンストラクタ
     def __init__(self, driver,schools_type,environment_name):
@@ -43,7 +43,7 @@ class InputItem_0710:
 
             #「コメント」欄の場合
             # if dom_key in ("Comments") : 
-            #     FuncElement.send(*common_dom_args) 
+            #     selenium_utils.send(*common_dom_args) 
             #     continue
             
             # 入力除外項目
@@ -51,8 +51,8 @@ class InputItem_0710:
             
             # 値を直入力
             if dom_key in ("Project","Title","Comments","Category") : 
-                FuncElement.send(*common_dom_args) 
+                selenium_utils.send(*common_dom_args) 
                 continue
 
-            FuncElement.select(*common_dom_args) 
+            selenium_utils.select(*common_dom_args) 
 
