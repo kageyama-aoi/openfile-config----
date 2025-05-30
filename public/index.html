@@ -169,10 +169,11 @@
 
                 if (pathValueInput && displaySpan) {
                     if (pathValueInput.value) {
-                        displaySpan.textContent = '現在のパス: ' + pathValueInput.value +
-                                                '. 「参照...」ボタンで変更するか、手動で編集してください。';
+                        // displaySpan.textContent = '現在のパス: ' + pathValueInput.value +
+                        displaySpan.textContent =  '' +
+                                                '. 「参照...」ボタンで変更するか、手動で編集する';
                     } else {
-                        displaySpan.textContent = 'パスを入力するか、「参照...」ボタンで選択してください。';
+                        displaySpan.textContent = 'パスを入力するか、「参照...」ボタンで選択する';
                     }
                 }
             }
