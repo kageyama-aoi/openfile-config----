@@ -14,6 +14,8 @@
 # 一括コメントアウト
 # Ctrl + /
 from logging import getLogger, StreamHandler, Formatter, FileHandler, DEBUG
+import json
+import os
 
 
 # --- 接続情報 ---
@@ -85,120 +87,74 @@ TR_FIELD_MAPPINGS = [
 TR_FIELDS, TR_HTML_ATTRIBUTES = zip(*TR_FIELD_MAPPINGS)
 """
 `TR_FIELD_MAPPINGS` をアンパックして生成されるタプル。
-TR_FIELDS: ('Schools', 'Project', ...) - フィールド名のタプル。
-TR_HTML_ATTRIBUTES: ('who_edit', 'project', ...) - HTML属性名のタプル。
+TR_FIELDS: ('Schools', 'Project', ...) - フィールド名のタプル。form_handlerで使用。
+TR_HTML_ATTRIBUTES: ('who_edit', 'project', ...) - HTML属性名のタプル。form_handlerで使用。
 """
 
-# --- TR入力値: 共通デフォルト値 ---
-DEFAULT_USER = 'kageyama'
-"""タスクレポートの「Uploader」や「Owner」フィールドのデフォルトユーザー名。"""
-DEFAULT_PRIORITY = 'Critical' # 'Critical', 'Serious' など
-"""タスクレポートの「Priority」フィールドのデフォルト値。"""
+# --- TRタイプ別デフォルト値 (JSONからロード) ---
+SCHOOL_SPECIFIC_DEFAULTS = {} # この辞書を動的に構築
 
-# --- TR入力値: UP依頼専用テンプレート ---
-UP_REQUEST_CATEGORY_TEMPLATE = "[KANKYOUMEI]環境_更新依頼"
-UP_REQUEST_TITLE_TEMPLATE = "[KANKYOUMEI]環境_更新依頼"
-UP_REQUEST_COMMENT_TEMPLATE = "下記のTRに紐づくschoolmngの資材を[KANKYOUMEI]環境へUPをお願いします。(TOTAL8)\r\nXXXXX\r\nXXXXX\r\nXXXXX\r\n\r\n今回事前事後対応がありま、、、"
-"""UP依頼時の「Category」「Title」「Comments」フィールドのテンプレート。`[KANKYOUMEI]` は選択された環境名で置換されます。"""
+def _load_tr_defaults_from_json():
+    """
+    tr_defaults.json からTRタイプ別のデフォルト値を読み込み、
+    SCHOOL_SPECIFIC_DEFAULTS を構築する。
+    この関数はモジュール読み込み時に一度だけ実行される。
+    """
+    # global SCHOOL_SPECIFIC_DEFAULTS # globalはトップレベルの変数を変更する場合に必要
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    json_path = os.path.join(current_dir, 'tr_defaults.json')
 
-# --- TR入力値: Tframe専用テンプレート ---
-TF_DRIVE_URL = "https://drive.google.com/drive/folders/1H5jEButNwT_J55h7B4B6V7lqjHfvr-Ti"
-TF_DESIGN_DOC_FOLDER_PATH = "002.Customer(Tframe)/001.JP_Document/002.Culture/01.詳細設計書/☆★43.謝礼合計(shareiTotal)"
-TF_SPEC_DOC_FILENAME = "43-50.講師謝礼明細（個人）_【CultureT】_20250519.xlsx" # 例: ファイル名は最新のものにしてください
-TF_COMMENT_TEMPLATE = f"保存URL:\r\n{TF_DRIVE_URL}\r\n\r\n日本語仕様書フォルダ：\r\n{TF_DESIGN_DOC_FOLDER_PATH}\r\n\r\n仕様書：\r\n{TF_SPEC_DOC_FILENAME}"
-"""Tframe案件の「Comments」フィールドに使用されるテンプレート。ドライブURL、設計書フォルダパス、仕様書ファイル名を含みます。"""
+    loaded_json_data = {}
+    try:
+        with open(json_path, 'r', encoding='utf-8') as f:
+            loaded_json_data = json.load(f)
+    except FileNotFoundError:
+        print(f"エラー: デフォルト設定ファイル {json_path} が見つかりません。")
+        # 致命的なエラーとして処理を停止するか、空のデフォルトで続行するかを検討
+        # ここでは空の辞書で続行し、後続の処理でエラーが発生する可能性を示唆
+        return
+    except json.JSONDecodeError:
+        print(f"エラー: デフォルト設定ファイル {json_path} の形式が正しくありません。")
+        return
 
-# --- TRタイプ別デフォルト値 ---
-# 各辞書のキーは `TR_FIELDS` の要素に対応します。
-# 例: 'Schools', 'Project', 'Priority', 'Uploader', 'Category', 'Title', 'Owner', 'Comments'
-S_DEFAULTS = {
-    'Schools': "shimamura",
-    'Project': "SMMs001PH",
-    'Priority': DEFAULT_PRIORITY,
-    'Uploader': DEFAULT_USER,
-    'Category': "-",
-    'Title': "(UATxxx)-----(shimaXXs)",
-    'Owner': DEFAULT_USER,
-    'Comments': "sc"
-}
-"""Shimamura(本番サポート)選択時のデフォルト値。"""
-TF_DEFAULTS = {
-    'Schools': "tframe",
-    'Project': "TCNz004PH",
-    'Priority': "Serious",  # TF固有の優先度
-    'Uploader': DEFAULT_USER,
-    'Category': "種別 機能番号",
-    'Title': "【Culture】機能名",
-    'Owner': DEFAULT_USER,
-    'Comments': TF_COMMENT_TEMPLATE
-}
-"""Tframe選択時のデフォルト値。"""
-T_DEFAULTS = {
-    'Schools': "shimamura",
-    'Project': "SMMN003PH",
-    'Priority': DEFAULT_PRIORITY,
-    'Uploader': DEFAULT_USER,
-    'Category': "-",
-    'Title': "(UATxxx)-----(SMBCPOS21s)",
-    'Owner': DEFAULT_USER,
-    'Comments': "tc"
-}
-"""Shimamura_SMBCPOS追加開発選択時のデフォルト値。"""
-Y_DEFAULTS = {
-    'Schools': "yamaha",
-    'Project': "YMHs001PH",
-    'Priority': DEFAULT_PRIORITY,
-    'Uploader': DEFAULT_USER,
-    'Category': "-",
-    'Title': "(Redminexxx)-----(GXX)",
-    'Owner': DEFAULT_USER,
-    'Comments': "yc"
-}
-"""Yamaha選択時のデフォルト値。"""
-H_DEFAULTS = { # 標準
-    'Schools': "shimamura", # 例: 必要に応じて調整
-    'Project': "SMMs001PH", # 例: 必要に応じて調整
-    'Priority': DEFAULT_PRIORITY,
-    'Uploader': DEFAULT_USER,
-    'Category': "-",
-    'Title': "(UATxxx)-----(shimaXXs)", # 例: 必要に応じて調整
-    'Owner': DEFAULT_USER,
-    'Comments': "hc"
-}
-"""標準選択時のデフォルト値。"""
-UP_REQUEST_DEFAULTS = {
-    'Schools': "shimamura",
-    'Project': "",  # UP依頼ではProjectは空欄か手動入力が多い
-    'Priority': DEFAULT_PRIORITY,
-    'Uploader': DEFAULT_USER,
-    'Category': UP_REQUEST_CATEGORY_TEMPLATE, # プレースホルダ [KANKYOUMEI] は置換される
-    'Title': UP_REQUEST_TITLE_TEMPLATE,       # プレースホルダ [KANKYOUMEI] は置換される
-    'Owner': DEFAULT_USER,
-    'Comments': UP_REQUEST_COMMENT_TEMPLATE  # プレースホルダ [KANKYOUMEI] は置換される
-}
-"""Shimamura_UAT_UP依頼選択時のデフォルト値。"""
-SM_DEFAULTS = { # Shimamura MySQL対応
-    'Schools': "shimamura",
-    'Project': "TCNz007PH",
-    'Priority': DEFAULT_PRIORITY,
-    'Uploader': DEFAULT_USER,
-    'Category': "-",
-    'Title': "(MySQLVerUP対応)-----",
-    'Owner': DEFAULT_USER,
-    'Comments': "sc"
-}
-"""Shimamura_mysql対応選択時のデフォルト値。"""
+    common_vals = loaded_json_data.get("common_values", {})
+    templates = loaded_json_data.get("comment_templates", {})
+    tr_type_defs_from_json = loaded_json_data.get("tr_type_defaults", {})
 
-SCHOOL_SPECIFIC_DEFAULTS = {
-    # ユーザーがメニュー1で選択したキーと、上記デフォルト値辞書のマッピング
-    "s": S_DEFAULTS,
-    "y": Y_DEFAULTS,
-    "tf": TF_DEFAULTS,
-    "h": H_DEFAULTS,
-    "t": T_DEFAULTS,
-    "up": UP_REQUEST_DEFAULTS,
-    "sm": SM_DEFAULTS
-}
+    default_user = common_vals.get("default_user", "unknown_user")
+    default_priority = common_vals.get("default_priority", "Normal")
+
+    # TFコメントテンプレートの構築
+    tf_comment = templates.get("tf_comment_template_format", "").format(
+        drive_url=templates.get("tf_drive_url", ""),
+        design_doc_folder=templates.get("tf_design_doc_folder_path", ""),
+        spec_doc_filename=templates.get("tf_spec_doc_filename", "")
+    )
+
+    # SCHOOL_SPECIFIC_DEFAULTS を構築
+    for type_key, defaults_from_json in tr_type_defs_from_json.items():
+        processed_defaults = {}
+        for field_key, value_template in defaults_from_json.items():
+            actual_value = value_template # デフォルトはテンプレートのまま
+            if isinstance(value_template, str):
+                if value_template == "_COMMON_USER_":
+                    actual_value = default_user
+                elif value_template == "_COMMON_PRIORITY_":
+                    actual_value = default_priority
+                elif value_template == "_UP_CATEGORY_TEMPLATE_":
+                    actual_value = templates.get("up_request_category", "")
+                elif value_template == "_UP_TITLE_TEMPLATE_":
+                    actual_value = templates.get("up_request_title", "")
+                elif value_template == "_UP_COMMENT_TEMPLATE_":
+                    actual_value = templates.get("up_request_comment", "")
+                elif value_template == "_TF_COMMENT_":
+                    actual_value = tf_comment
+            processed_defaults[field_key] = actual_value
+        SCHOOL_SPECIFIC_DEFAULTS[type_key] = processed_defaults
+
+# モジュール読み込み時にJSONファイルからデフォルト値をロード
+_load_tr_defaults_from_json()
+
 """
 ユーザーが最初に選択する対応種別（キー）と、それに対応するデフォルト値の辞書（値）をマッピングします。
 `form_handler.py` で、ユーザーの選択に応じて適切なデフォルト値セットを取得するために使用されます。
@@ -211,6 +167,7 @@ SCHOOL_SPECIFIC_DEFAULTS = {
     "up": Shimamura_UAT_UP依頼
     "sm": Shimamura_mysql対応
 """
+
 
 # --- ロギング設定 ---
 def setup_logger(log_file_path, logger_name=__name__): # パラメータ名を log_file_path に変更して明確化
