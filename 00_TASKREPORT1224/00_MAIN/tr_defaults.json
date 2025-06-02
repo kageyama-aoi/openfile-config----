@@ -13,75 +13,73 @@
     "tf_comment_template_format": "保存URL:\r\n{drive_url}\r\n\r\n日本語仕様書フォルダ：\r\n{design_doc_folder}\r\n\r\n仕様書：\r\n{spec_doc_filename}"
   },
   "tr_type_defaults": {
-    "s": {
-      "Schools": "shimamura",
-      "Project": "SMMs001PH",
+    "_base": {
       "Priority": "_COMMON_PRIORITY_",
       "Uploader": "_COMMON_USER_",
-      "Category": "-",
-      "Title": "(UATxxx)-----(shimaXXs)",
       "Owner": "_COMMON_USER_",
+      "Category": "-"
+    },
+    "s": {
+      "_comment": "Inherits Priority, Uploader, Owner, Category from _base",
+      "Schools": "shimamura",
+      "Project": "SMMs001PH",
+      "Title": "(UATXxxx)-----(shimaXXs)",
       "Comments": "sc"
     },
     "y": {
+      "_comment": "Inherits Priority, Uploader, Owner, Category from _base",
       "Schools": "yamaha",
       "Project": "YMHs001PH",
-      "Priority": "_COMMON_PRIORITY_",
-      "Uploader": "_COMMON_USER_",
-      "Category": "-",
       "Title": "(Redminexxx)-----(GXX)",
-      "Owner": "_COMMON_USER_",
       "Comments": "yc"
     },
     "tf": {
+      "_comment": "Inherits Uploader, Owner from _base. Overrides Priority and Category.",
       "Schools": "tframe",
       "Project": "TCNz004PH",
       "Priority": "Serious",
-      "Uploader": "_COMMON_USER_",
       "Category": "種別 機能番号",
       "Title": "【Culture】機能名",
-      "Owner": "_COMMON_USER_",
       "Comments": "_TF_COMMENT_"
     },
     "h": {
+      "_comment": "Inherits Priority, Uploader, Owner, Category from _base",
       "Schools": "shimamura",
       "Project": "SMMs001PH",
-      "Priority": "_COMMON_PRIORITY_",
-      "Uploader": "_COMMON_USER_",
-      "Category": "-",
       "Title": "(UATxxx)-----(shimaXXs)",
-      "Owner": "_COMMON_USER_",
       "Comments": "hc"
     },
     "t": {
+      "_comment": "Inherits Priority, Uploader, Owner, Category from _base",
       "Schools": "shimamura",
       "Project": "SMMN003PH",
-      "Priority": "_COMMON_PRIORITY_",
-      "Uploader": "_COMMON_USER_",
-      "Category": "-",
       "Title": "(UATxxx)-----(SMBCPOS21s)",
-      "Owner": "_COMMON_USER_",
       "Comments": "tc"
     },
     "up": {
+      "_comment": "Inherits Priority, Uploader, Owner from _base. Overrides Category. Project, Title, Comments are specific.",
       "Schools": "shimamura",
       "Project": "",
-      "Priority": "_COMMON_PRIORITY_",
-      "Uploader": "_COMMON_USER_",
       "Category": "_UP_CATEGORY_TEMPLATE_",
       "Title": "_UP_TITLE_TEMPLATE_",
-      "Owner": "_COMMON_USER_",
       "Comments": "_UP_COMMENT_TEMPLATE_"
     },
     "sm": {
+      "_comment": "Inherits Priority, Uploader, Owner, Category from _base",
       "Schools": "shimamura",
       "Project": "TCNz007PH",
-      "Priority": "_COMMON_PRIORITY_",
-      "Uploader": "_COMMON_USER_",
-      "Category": "-",
       "Title": "(MySQLVerUP対応)-----",
-      "Owner": "_COMMON_USER_",
       "Comments": "sc"
     }
-  }
+  },
+  "tr_field_mappings": [
+    ["Schools", "who_edit"],
+    ["Project", "project"],
+    ["Priority", "priority_edit"],
+    ["Uploader", "uploader_edit"],
+    ["Category", "where_edit"],
+    ["Title", "what_edit"],
+    ["Owner", "owned_edit"],
+    ["Comments", "comments"]
+  ]
 }
