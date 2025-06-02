@@ -3,33 +3,41 @@ from tkinter import filedialog
 import sys
 
 def get_path():
-    # 標準出力のエンコーディングをUTF-8に設定
-    # これにより、Node.js (server.js) がファイルパスを正しく解釈できるようになります。
+    """
+    ファイル選択ダイアログを表示し、ユーザーが選択したファイルのフルパスを標準出力に出力します。
+    ファイルが選択されなかった場合は空文字列を出力します。
+
+    引数:
+        なし
+    戻り値:
+        なし (結果は標準出力へ)
+    """
     try:
-        # Python 3.7+
+        # 標準出力および標準エラー出力のエンコーディングをUTF-8に設定 (Python 3.7+)
         sys.stdout.reconfigure(encoding='utf-8')
-        sys.stderr.reconfigure(encoding='utf-8') # 標準エラー出力も同様に設定
+        sys.stderr.reconfigure(encoding='utf-8')
     except AttributeError:
-        # Python 3.7未満の場合、この方法は使えません。
-        # その場合は、server.js側でPythonプロセスを起動する際に環境変数 PYTHONIOENCODING=utf-8 を設定するアプローチがより確実です。
+        # Python 3.7未満では reconfigure が利用できないため、何もしない
+        # server.js側で環境変数 PYTHONIOENCODING=utf-8 を設定する代替策も検討可能
         pass
 
+    # Tkinterのメインウィンドウを作成
     root = tk.Tk()
-    root.withdraw()  # メインウィンドウを非表示にする
-    root.attributes('-topmost', True)  # ダイアログを最前面に表示
-    
-    # ファイルタイプを指定する場合 (例)
-    # filetypes = (
-    #     ('PDF files', '*.pdf'),
-    #     ('Document files', '*.doc *.docx'),
-    #     ('All files', '*.*')
-    # )
-    # file_path = filedialog.askopenfilename(title="ファイルを選択", filetypes=filetypes)
+    # メインウィンドウを画面に表示しない
+    root.withdraw()
+    # ファイル選択ダイアログを常に最前面に表示
+    root.attributes('-topmost', True)
+
+    # ファイル選択ダイアログを開き、ユーザーにファイルを選択させる
     file_path = filedialog.askopenfilename(title="ファイルを選択")
-    root.attributes('-topmost', False) # 最前面表示を解除
-    
-    print(file_path if file_path else "") # 選択されたパスを標準出力へ (未選択の場合は空文字)
-    sys.stdout.flush() # バッファをフラッシュ
+    # ファイル選択ダイアログが閉じたら、最前面表示設定を解除
+    root.attributes('-topmost', False)
+
+    # 選択されたファイルパスを標準出力に出力（選択されなかった場合は空文字列）
+    print(file_path if file_path else "")
+    # 標準出力のバッファを強制的にフラッシュして即時出力
+    sys.stdout.flush()
 
 if __name__ == "__main__":
+    # スクリプトが直接実行された場合にget_path関数を呼び出す
     get_path()

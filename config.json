@@ -21,8 +21,18 @@
         "position": {
           "x": 0,
           "y": 0,
-          "width": 1024,
+          "width": 1022,
           "height": 768
+        }
+      },
+      {
+        "path": "",
+        "title": "",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
         }
       }
     ]

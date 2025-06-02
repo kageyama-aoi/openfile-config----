@@ -129,33 +129,42 @@
             margin-bottom: 0; /* Remove default margin as the row handles it */
         }
     </style>
+    <style>
+        /* Styles for Add/Remove buttons */
+        .add-file-button, .delete-file-button {
+            padding: 8px 12px;
+            margin-top: 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        .add-file-button {
+            background-color: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        .delete-file-button {
+            background-color: #dc3545;
+            color: white;
+            border-color: #dc3545;
+        }
+    </style>
 </head>
 <body>
+    <!-- メインコンテナ -->
     <div class="container">
         <h1>設定入力</h1>
 
+        <!-- 設定フォーム -->
         <form id="configForm">
-            <!-- Office File Example (from config.json) -->
-            <section id="office-section-wrapper" class="collapsible-section">
-                <h2 class="collapsible-header" id="office-section-header" aria-controls="office-section-content" aria-expanded="false">
-                    オフィス設定
-                    <span class="toggle-icon"></span>
-                </h2>
-                <div class="collapsible-content" id="office-section-content" role="region" aria-labelledby="office-section-header">
-                    <!-- Content will be dynamically inserted here by JavaScript -->
-                </div>
-            </section>
-            
-            <section id="remote-section-wrapper" class="collapsible-section">
-                <h2 class="collapsible-header" id="remote-section-header" aria-controls="remote-section-content" aria-expanded="false">
-                    リモート設定
-                    <span class="toggle-icon"></span>
-                </h2>
-                <div class="collapsible-content" id="remote-section-content" role="region" aria-labelledby="remote-section-header">
-                    <!-- Content will be dynamically inserted here by JavaScript -->
-                </div>
-            </section>
+            <!-- 動的フォームコンテンツエリア -->
+            <!-- JavaScriptによって設定セクションがここに挿入されます -->
+            <div id="dynamic-form-content">
+            </div>
 
+            <!-- 保存ボタン -->
             <button type="submit">設定を保存</button>
         </form>
     </div>
@@ -163,10 +172,17 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Function to initialize path display messages
+            /**
+             * ファイルパス入力フィールドに関連する表示テキストを初期化または更新します。
+             * @param {string} pathValueInputId - ファイルパスを保持するinput要素のID。
+             * @param {string} displaySpanId - パス情報を表示するspan要素のID。
+             */
             function initPathDisplay(pathValueInputId, displaySpanId) {
+                // 対象となる入力フィールドと表示スパンを取得
                 const pathValueInput = document.getElementById(pathValueInputId);
                 const displaySpan = document.getElementById(displaySpanId);
 
+                // 要素が存在する場合のみ処理を実行
                 if (pathValueInput && displaySpan) {
                     if (pathValueInput.value) {
                         // displaySpan.textContent = '現在のパス: ' + pathValueInput.value +
@@ -179,20 +195,30 @@
             }
 
             // Helper function to create file entry HTML
-            function createFileEntryHTML(sectionPrefix, index, file = {}) {
-                const fileIdPrefix = `${sectionPrefix}File${index}`;
+            /**
+             * 特定のセクションとファイルインデックスに対応するファイル設定エントリーのHTML文字列を生成します。
+             * @param {string} sectionKey - 設定セクションのキー（例: "office", "remote"）。
+             * @param {number} fileIndex - セクション内でのファイルのインデックス。
+             * @param {object} [file={}] - ファイル情報を含むオブジェクト（パス、タイトル、位置など）。
+             * @returns {string} 生成されたHTML文字列。
+             */
+            function createFileEntryHTML(sectionKey, fileIndex, file = {}) {
+                // 各要素のIDプレフィックスを生成
+                const fileIdPrefix = `${sectionKey}-file${fileIndex}`;
+                // ファイルオブジェクトから各値を取得、存在しない場合はデフォルト値を設定
                 const path = file.path || '';
                 const title = file.title || '';
                 const posX = file.position ? file.position.x || 0 : 0;
                 const posY = file.position ? file.position.y || 0 : 0;
                 const width = file.position ? file.position.width || 0 : 0;
                 const height = file.position ? file.position.height || 0 : 0;
+                // パス表示用の初期テキストを設定
+                const initialPathDisplayText = path ? `現在のパス: ${path}. 「参照...」ボタンで変更するか、手動で編集する` : 'パスを入力するか、「参照...」ボタンで選択する';
 
-                // Initial display text logic will be handled by initPathDisplay after element creation
-                const initialPathDisplayText = `パス情報をロード中...`;
-
+                // ファイルエントリーのHTML構造を定義
                 return `
-                    <div class="file-entry" id="${sectionPrefix}-file-${index}">
+                    <div class="file-entry" id="${fileIdPrefix}-entry" data-section-key="${sectionKey}" data-file-index="${fileIndex}">
+                        <!-- ファイルパス入力グループ -->
                         <div class="form-group">
                             <label for="${fileIdPrefix}PathValue">ファイルパス:</label>
                             <div class="input-control with-browse">
@@ -206,12 +232,14 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- タイトル入力グループ -->
                         <div class="form-group">
                             <label for="${fileIdPrefix}Title">タイトル:</label>
                             <div class="input-control">
                                 <input type="text" id="${fileIdPrefix}Title" name="${fileIdPrefix}Title" value="${title}" placeholder="ファイルタイトル">
                             </div>
                         </div>
+                        <!-- 位置X、位置Y入力グループ (横並び) -->
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="${fileIdPrefix}PosX">位置 X:</label>
@@ -226,6 +254,7 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- 幅、高さ入力グループ (横並び) -->
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="${fileIdPrefix}Width">幅:</label>
@@ -240,75 +269,142 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- このファイルエントリーを削除するボタン -->
+                        <button type="button" class="delete-file-button" data-target-entry-id="${fileIdPrefix}-entry">このファイルを削除</button>
                     </div>
                 `;
             }
 
             // Function to load existing config data into the form
+            /**
+             * サーバーから設定データを非同期に読み込み、フォームに動的に表示します。
+             * 各設定セクション（例: office, remote）と、その中のファイルエントリを生成します。
+             */
             async function loadConfigData() {
-                const officeContent = document.getElementById('office-section-content');
-                const remoteContent = document.getElementById('remote-section-content');
+                // 動的コンテンツを表示するDOM要素を取得
+                const formContent = document.getElementById('dynamic-form-content');
+                formContent.innerHTML = '<p>設定を読み込み中...</p>'; // 読み込み中メッセージを表示
 
                 try {
+                    // サーバーから設定ファイル(/config)を取得
                     const response = await fetch('/config');
+                    // レスポンスが正常でない場合はエラーメッセージを表示して終了
                     if (!response.ok) {
                         alert('設定の読み込みに失敗しました: ' + response.statusText);
-                        // Render empty forms even on failure
-                        officeContent.innerHTML = createFileEntryHTML('office', 1);
-                        initPathDisplay('officeFile1PathValue', 'officeFile1PathDisplay');
-                        remoteContent.innerHTML = createFileEntryHTML('remote', 1);
-                        initPathDisplay('remoteFile1PathValue', 'remoteFile1PathDisplay');
+                        formContent.innerHTML = '<p>設定の読み込みに失敗しました。ページを再読み込みしてください。</p>';
                         return;
                     }
+                    // レスポンスボディをJSONとして解析
                     const config = await response.json();
+                    formContent.innerHTML = ''; // 読み込み中メッセージをクリア
 
-                    // Populate Office settings
-                    if (config.office && config.office.files && config.office.files.length > 0) {
-                        officeContent.innerHTML = createFileEntryHTML('office', 1, config.office.files[0]);
-                    } else {
-                        officeContent.innerHTML = createFileEntryHTML('office', 1); // Default empty entry
-                    }
-                    initPathDisplay('officeFile1PathValue', 'officeFile1PathDisplay');
+                    // 設定オブジェクトの各キー（セクションキー）に対して処理を実行
+                    Object.keys(config).forEach(sectionKey => {
+                        const sectionData = config[sectionKey];
+                        // セクションデータがオブジェクトで、'files'プロパティが配列であることを確認
+                        if (typeof sectionData !== 'object' || !Array.isArray(sectionData.files)) {
+                            console.warn(`Section "${sectionKey}" does not have a 'files' array. Skipping.`);
+                            return;
+                        }
 
-                    // Populate Remote settings
-                    if (config.remote && config.remote.files && config.remote.files.length > 0) {
-                        remoteContent.innerHTML = createFileEntryHTML('remote', 1, config.remote.files[0]);
-                    } else {
-                        remoteContent.innerHTML = createFileEntryHTML('remote', 1); // Default empty entry
-                    }
-                    initPathDisplay('remoteFile1PathValue', 'remoteFile1PathDisplay');
+                        // セクション全体のラッパー要素を作成
+                        const sectionWrapper = document.createElement('section');
+                        sectionWrapper.id = `${sectionKey}-section-wrapper`;
+                        sectionWrapper.className = 'collapsible-section';
+                        // セクションヘッダー（折りたたみ機能付き）を作成
+                        const header = document.createElement('h2');
+                        header.className = 'collapsible-header';
+                        header.id = `${sectionKey}-section-header`;
+                        header.setAttribute('aria-controls', `${sectionKey}-section-content`);
+                        header.setAttribute('aria-expanded', 'false');
+                        header.textContent = sectionKey.charAt(0).toUpperCase() + sectionKey.slice(1) + ' 設定'; // Basic title
+                        const toggleIcon = document.createElement('span');
+                        toggleIcon.className = 'toggle-icon';
+                        header.appendChild(toggleIcon);
+                        sectionWrapper.appendChild(header);
+
+                        // セクションのコンテンツエリアを作成
+                        const contentDiv = document.createElement('div');
+                        contentDiv.className = 'collapsible-content';
+                        contentDiv.id = `${sectionKey}-section-content`;
+                        contentDiv.setAttribute('role', 'region');
+                        contentDiv.setAttribute('aria-labelledby', `${sectionKey}-section-header`);
+
+                        if (sectionData.files.length > 0) {
+                            // セクションにファイルが存在する場合、各ファイルのエントリーを生成
+                            sectionData.files.forEach((file, fileIndex) => {
+                                const fileEntryHTML = createFileEntryHTML(sectionKey, fileIndex, file);
+                                const tempDiv = document.createElement('div'); // HTML文字列をDOM要素に変換するための一時要素
+                                tempDiv.innerHTML = fileEntryHTML;
+                                contentDiv.appendChild(tempDiv.firstElementChild);
+                            });
+                        } else {
+                            // セクションにファイルが存在しない場合、空のファイルエントリーを1つ生成
+                            const fileEntryHTML = createFileEntryHTML(sectionKey, 0, {});
+                            const tempDiv = document.createElement('div');
+                            tempDiv.innerHTML = fileEntryHTML;
+                            contentDiv.appendChild(tempDiv.firstElementChild);
+                        }
+                        sectionWrapper.appendChild(contentDiv);
+
+                        // 「このセクションにファイルを追加」ボタンを作成
+                        const addFileButton = document.createElement('button');
+                        addFileButton.type = 'button';
+                        addFileButton.className = 'add-file-button';
+                        addFileButton.textContent = 'このセクションにファイルを追加';
+                        addFileButton.dataset.sectionKey = sectionKey;
+                        addFileButton.dataset.contentTargetId = contentDiv.id;
+                        sectionWrapper.appendChild(addFileButton);
+
+                        // 完成したセクションをフォームコンテンツエリアに追加
+                        formContent.appendChild(sectionWrapper);
+                    });
+
+                    // 動的に生成された要素に対して、折りたたみ機能を初期化
+                    initializeCollapsibleSections();
+                    // 動的に生成された「参照...」ボタンに対応するパス表示を初期化
+                    document.querySelectorAll('.browse-button').forEach(button => {
+                        initPathDisplay(button.dataset.pathInputId, button.dataset.displaySpanId);
+                    });
 
                 } catch (error) {
                     console.error('設定の読み込み中にエラーが発生しました:', error);
                     alert('設定の読み込み中にエラーが発生しました。');
-                    // Render empty forms on error
-                    officeContent.innerHTML = createFileEntryHTML('office', 1);
-                    initPathDisplay('officeFile1PathValue', 'officeFile1PathDisplay');
-                    remoteContent.innerHTML = createFileEntryHTML('remote', 1);
-                    initPathDisplay('remoteFile1PathValue', 'remoteFile1PathDisplay');
+                    formContent.innerHTML = '<p>設定の読み込みエラー。詳細はコンソールを確認してください。</p>'; // エラーメッセージを表示
                 }
             }
 
-            // Load existing config data when the page loads
+            // ページ読み込み時に設定データをロード
             loadConfigData();
 
-
             // Initialize collapsible sections functionality
-            const collapsibleHeaders = document.querySelectorAll('.collapsible-header');
-
-            collapsibleHeaders.forEach(header => {
-                header.addEventListener('click', function() {
-                    const section = this.closest('.collapsible-section');
-                    if (section) {
-                        const isActive = section.classList.toggle('active');
-                        this.setAttribute('aria-expanded', isActive.toString());
-                    }
+            /**
+             * ページ内のすべての折りたたみ可能なセクションヘッダーにクリックイベントリスナーを設定します。
+             * ヘッダーをクリックすると、対応するコンテンツの表示/非表示が切り替わります。
+             * 動的に要素が追加された後にも呼び出せるように、既存のリスナーを解除してから再設定します。
+             */
+            function initializeCollapsibleSections() {
+                const collapsibleHeaders = document.querySelectorAll('.collapsible-header');
+                collapsibleHeaders.forEach(header => {
+                    // 既存のイベントリスナーを削除するために、要素をクローンして置き換える
+                    const newHeader = header.cloneNode(true);
+                    header.parentNode.replaceChild(newHeader, header);
+                    // 新しいヘッダーにイベントリスナーを追加
+                    newHeader.addEventListener('click', function() {
+                        const section = this.closest('.collapsible-section');
+                        if (section) {
+                            const isActive = section.classList.toggle('active');
+                            this.setAttribute('aria-expanded', isActive.toString());
+                        }
+                    });
                 });
-            });
+            }
 
-            // Event delegation for "参照..." buttons
+            // フォーム全体に対するイベント委譲（「参照...」ボタン用）
             document.getElementById('configForm').addEventListener('click', async function(event) {
+                // クリックされた要素が「参照...」ボタンか確認
                 if (event.target.classList.contains('browse-button')) {
+                    // ボタンと関連するDOM要素を取得
                     const button = event.target;
                     const pathInputId = button.dataset.pathInputId;
                     const titleInputId = button.dataset.titleInputId;
@@ -317,34 +413,43 @@
                     const titleInput = document.getElementById(titleInputId);
                     const displaySpan = document.getElementById(displaySpanId);
 
+                    // 必要な要素が見つからない場合はエラーログを出力して終了
                     if (!pathInput || !displaySpan) {
                         console.error('Browse button target elements not found:', pathInputId, displaySpanId);
                         return;
                     }
 
                     try {
+                        // ファイル選択ダイアログを開いていることをユーザーに通知
                         displaySpan.textContent = "ファイル選択ダイアログを開いています...";
+                        // サーバーにファイルパス取得リクエストを送信
                         const apiResponse = await fetch('/get-file-path');
+                        // サーバーエラーの場合の処理
                         if (!apiResponse.ok) {
                             const errorResult = await apiResponse.json().catch(() => ({error: apiResponse.statusText}));
                             alert(`サーバーエラー: ${errorResult.error || apiResponse.statusText}`);
                             displaySpan.textContent = "パス取得に失敗しました。";
                             return;
                         }
+                        // レスポンスをJSONとして解析
                         const result = await apiResponse.json();
+                        // ファイルパスが取得できた場合
                         if (result.filePath) {
                             pathInput.value = result.filePath;
+                            // ファイル名部分を抽出してタイトル入力フィールドに設定 (存在する場合)
                             const filename = result.filePath.includes('/') ? result.filePath.substring(result.filePath.lastIndexOf('/') + 1) : result.filePath.substring(result.filePath.lastIndexOf('\\') + 1);
                             if (titleInput) {
                                 titleInput.value = filename;
                             }
                             displaySpan.textContent = `パスが設定されました: ${result.filePath}`;
-                            // Update display text based on new path
+                            // 新しいパスに基づいて表示テキストを更新
                             initPathDisplay(pathInputId, displaySpanId);
                         } else {
+                            // ファイルが選択されなかった場合
                             displaySpan.textContent = "ファイルは選択されませんでした。";
                         }
                     } catch (error) {
+                        // クライアントサイドでのエラー処理
                         console.error('ファイルパス取得リクエストエラー:', error);
                         alert('ファイルパスの取得中にクライアント側でエラーが発生しました。');
                         displaySpan.textContent = "パス取得中にエラーが発生しました。";
@@ -352,54 +457,100 @@
                 }
             });
 
+            // 動的フォームコンテンツエリアに対するイベント委譲（「ファイルを追加」「削除」ボタン用）
+            document.getElementById('dynamic-form-content').addEventListener('click', function(event) {
+                // 「ファイルを追加」ボタンがクリックされた場合
+                if (event.target.classList.contains('add-file-button')) {
+                    const button = event.target;
+                    const sectionKey = button.dataset.sectionKey;
+                    const contentTargetId = button.dataset.contentTargetId;
+                    const contentDiv = document.getElementById(contentTargetId);
+                    // 対象のコンテンツエリアが存在する場合
+                    if (contentDiv) {
+                        const existingFileEntries = contentDiv.querySelectorAll('.file-entry');
+                        const newFileIndex = existingFileEntries.length; // Next index
+                        
+                        const newFileEntryHTML = createFileEntryHTML(sectionKey, newFileIndex, {});
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = newFileEntryHTML;
+                        const newEntryElement = tempDiv.firstElementChild;
+                        contentDiv.appendChild(newEntryElement);
+                        // 新しく追加されたエントリーのパス表示を初期化
+                        const pathInputId = `${sectionKey}-file${newFileIndex}-PathValue`;
+                        const displaySpanId = `${sectionKey}-file${newFileIndex}-PathDisplay`;
+                        initPathDisplay(pathInputId, displaySpanId);
+                    }
+                // 「このファイルを削除」ボタンがクリックされた場合
+                } else if (event.target.classList.contains('delete-file-button')) {
+                    const button = event.target;
+                    const entryIdToDelete = button.dataset.targetEntryId;
+                    const entryElement = document.getElementById(entryIdToDelete);
+                    // 削除対象の要素が存在する場合、DOMから削除
+                    if (entryElement) {
+                        entryElement.remove();
+                    }
+                }
+            });
+
             // Handle form submission
+            /**
+             * フォーム送信イベントを処理します。
+             * フォーム内の全セクションとファイルエントリからデータを収集し、
+             * JSON形式でサーバーに送信して設定を保存します。
+             * @param {Event} event - フォーム送信イベント。
+             */
             const configForm = document.getElementById('configForm');
             configForm.addEventListener('submit', async function(event) {
-                event.preventDefault(); // Prevent default form submission
+                event.preventDefault(); // デフォルトのフォーム送信動作をキャンセル
 
-                const configData = {
-                    office: {
-                        files: [
-                            {
-                                path: document.getElementById('officeFile1PathValue').value,
-                                title: document.getElementById('officeFile1Title').value,
-                                position: {
-                                    x: parseInt(document.getElementById('officeFile1PosX').value) || 0,
-                                    y: parseInt(document.getElementById('officeFile1PosY').value) || 0,
-                                    width: parseInt(document.getElementById('officeFile1Width').value) || 0,
-                                    height: parseInt(document.getElementById('officeFile1Height').value) || 0
-                                }
-                            }
-                        ]
-                    },
-                    remote: {
-                        files: [
-                            {
-                                path: document.getElementById('remoteFile1PathValue').value,
-                                title: document.getElementById('remoteFile1Title').value,
-                                position: {
-                                    x: parseInt(document.getElementById('remoteFile1PosX').value) || 0,
-                                    y: parseInt(document.getElementById('remoteFile1PosY').value) || 0,
-                                    width: parseInt(document.getElementById('remoteFile1Width').value) || 0,
-                                    height: parseInt(document.getElementById('remoteFile1Height').value) || 0
-                                }
-                            }
-                        ]
-                    }
-                };
+                // 保存するデータを格納するオブジェクト
+                const dataToSave = {};
+                // フォーム内の全セクションを取得
+                const sections = document.querySelectorAll('#dynamic-form-content .collapsible-section');
 
+                sections.forEach(sectionElement => {
+                    // セクションラッパーのIDからセクションキーを推測 (例: "office-section-wrapper" -> "office")
+                    const sectionKey = sectionElement.id.replace('-section-wrapper', '');
+                    if (!sectionKey) return;
+
+                    dataToSave[sectionKey] = { files: [] };
+                    const fileEntries = sectionElement.querySelectorAll('.file-entry');
+                    // 各ファイルエントリーからデータを収集
+                    fileEntries.forEach(fileEntry => {
+                        // Infer fileIndex and sectionKey from data attributes or reconstruct prefix
+                        const entrySectionKey = fileEntry.dataset.sectionKey;
+                        const entryFileIndex = fileEntry.dataset.fileIndex;
+                        const idPrefix = `${entrySectionKey}-file${entryFileIndex}`;
+
+                        const fileData = {
+                            path: document.getElementById(`${idPrefix}PathValue`).value,
+                            title: document.getElementById(`${idPrefix}Title`).value,
+                            position: {
+                                x: parseInt(document.getElementById(`${idPrefix}PosX`).value) || 0,
+                                y: parseInt(document.getElementById(`${idPrefix}PosY`).value) || 0,
+                                width: parseInt(document.getElementById(`${idPrefix}Width`).value) || 0,
+                                height: parseInt(document.getElementById(`${idPrefix}Height`).value) || 0
+                            }
+                        };
+                        dataToSave[sectionKey].files.push(fileData);
+                    });
+                });
+
+                // 収集したデータをサーバーに送信
                 try {
                     const response = await fetch('/config', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify(configData),
+                        body: JSON.stringify(dataToSave), // データをJSON文字列に変換
                     });
-                    const result = await response.json(); // server.js sends back JSON
+                    const result = await response.json(); // サーバーからのレスポンスをJSONとして解析
+                    // 結果をアラートで表示
                     alert(result.message || (response.ok ? '設定が保存されました。' : 'エラーが発生しました。'));
                 } catch (error) {
                     console.error('設定の保存中にエラーが発生しました:', error);
+                    // クライアントサイドでのエラー処理
                     alert('設定の保存中にクライアント側でエラーが発生しました。');
                 }
             });
